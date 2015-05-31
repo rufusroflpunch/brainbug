@@ -13,3 +13,11 @@
   font-family: Monospace;
   box-shadow: 3px 3px 3px gray;
 }
+
+label {
+  background-color: lightgray;
+}
+
+textarea {
+  word-break: break-all;
+}
