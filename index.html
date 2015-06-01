@@ -48,25 +48,34 @@
         <td id="bf-debug-pos"></td>
       </tr>
       <tr>
-        <td>Input</td>
+        <td>Input Buffer</td>
         <td id="bf-debug-input"></td>
       </tr>
       <tr>
-        <td>Output</td>
+        <td>Output Buffer</td>
         <td id="bf-debug-output"></td>
       </tr>
       <tr>
-        <td>Memory Value</td>
+        <td>Value at Pointer</td>
+        <td id="bf-debug-pointerval"></td>
+      </tr>
+      <tr>
+        <td>Value In Memory Location</td>
         <td id="bf-debug-memval"></td>
+      </tr>
     </table>
 
-    <form>
-      <div class="form-group">
-        <label for="bf-debug-memloc">Value in Memory Location</label>
-        <input id="bf-debug-memloc" class="form-control">
-        <button class="btn btn-default form-controle">Submit</button>
-      </div> <!-- Form group -->
-    </form>
+    <div class="container">
+      <div class="row">
+        <label for="bf-debug-memloc">Value In Memory Location</label>
+      </div> <!-- Row -->
+      <div class="row">
+        <input id="bf-debug-memloc">
+      </div> <!-- Row -->
+      <div class="row">
+        <button id = "bf-debug-peek" class="btn btn-default">Peek</button>
+      </div> <!-- Row -->
+    </div> <!-- Container -->
   </div> <!-- Column -->
 </div> <!-- Row -->
 

@@ -3,21 +3,33 @@ var bf_state = {};
 // Rest VM and interface to zero
 var resetState = function() {
   bf_state = {
-    pos: 0,
-    loops: [],
-    loopSkip: false,
-    cmds: [],
-    mem: new Array(30000),
-    input: []
+  pos: 0,                             // The memory position of the pointer
+  loops: [],                          // The queue used to store the open positions of a loop
+  loopSkip: false,                    // Are we skipping the inner portion of a loop?
+  cmds: [],                           // The complete program stored as a character array
+  mem: new Array(30000),              // Memory array
+  input: [],                          // Character input stream
+  debugCP: 0                          // Debug code pointer. Debugging can pause in the middle of execution, so the
+                                      // code pointer is stored in the state to allow Debug to be continued
   };
-  bf_state.mem.fill(0);
+  bf_state.mem.fill(0);               // Make sure the memory is completely ZERO'd out
+
+  $("#bf-output").text("");           // Execute interface resets
+  $("#bf-debug-pos").text("");
+  $("#bf-debug-input").text("");
+  $("#bf-debug-output").text("");
+  $("#bf-debug-pointerval").text("");
+  $("#bf-debug-memval").text("");
 };
 
 // Execute the loaded instruction set all the way to instruction number finalInstruction.
-var execute = function(finalInstruction) {
+var execute = function(finalInstruction, debug) {
   var output = "";
+  var i = 0;
+  if (debug)
+    i = bf_state.debugCP;
 
-  for (var i = 0; i < finalInstruction; i += 1) {
+  for (; i < finalInstruction; i += 1) {
     switch(bf_state.cmds[i]) {
       case "[":
         bf_state.loops.push(i);
@@ -69,6 +81,16 @@ var execute = function(finalInstruction) {
         bf_state.mem[bf_state.pos] = bf_state.input.shift().codePointAt(0);
         // console.log("Accept one byte of input, store at data pointer.");
         break;
+      case "*":
+        if (debug) {
+          bf_state.debugCP = i+1;
+          $("#bf-debug-pos").text(i);
+          $("#bf-debug-input").text(bf_state.input.join(''));
+          $("#bf-debug-output").text(output);
+          $("#bf-debug-pointerval").text(bf_state.mem[bf_state.pos]);
+          return;
+        }
+        break;
     };
   };
 
@@ -79,16 +101,43 @@ var execute = function(finalInstruction) {
   
 };
 
+// Standard code execution
 $("#bf-run").click(function() {
   resetState();
 
   var code = $( "#bf-code").val();
   bf_state.cmds = code.split('');
 
-  execute(bf_state.cmds.length);
+  execute(bf_state.cmds.length, false);
 
 });
 
+// Initiate debug mode
+$("#bf-debug").click(function () {
+  resetState();
+
+  var code = $("#bf-code").val();
+  bf_state.cmds = code.split('');
+
+  execute(bf_state.cmds.length, true)
+});
+
+// Continue debugging after a breakpoint
+$("#bf-continue").click(function() {
+  execute(bf_state.cmds.length, true);
+});
+
+$("#bf-reset").click(function () {
+  resetState();
+});
+
+// Peek into memory location
+$("#bf-debug-peek").click(function () {
+  var memval = bf_state.mem[$("#bf-debug-memloc").val()];
+  $("#bf-debug-memval").text(memval + "(" + String.fromCharCode(memval) + ")");
+});
+
+// Beautify the code
 $("#bf-beautify").click(function() {
   var code = $("#bf-code").val();
   code = code.split('');
@@ -119,6 +168,6 @@ $("#bf-beautify").click(function() {
   });
 
   new_code = new_code.trim(); // Remove unnecessary whitespace
-  new_code = new_code.replace(/([^\.\+-\[\]\,\<\>\w])\n/g, '$1');
+  new_code = new_code.replace(/([^\.\+-\[\]\,\<\>\w])\n/g, '$1'); // Combine all lines that have only one thing
   $('#bf-code').val(new_code);
 });
